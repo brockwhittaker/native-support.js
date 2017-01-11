@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+    </head>
+    <body>
+
+        <script src="./support.js" charset="utf-8"></script>
+        <script type="text/javascript">
+        NativeSupport.init();
+
+        [1,2,3].push(5);
+        [1,2,3].concat(4);
+
+        [1,2,3].some(o => o > 2);
+        [1,2,3].filter(o => o);
+        [1,2,3].every(o => o);
+        [1,2,3].includes(2);
+
+        Object.defineProperty({}, "a", {
+            value: 4
+        });
+        Object.keys({a: 2, b: 4});
+        </script>
+    </body>
+</html>
