@@ -283,6 +283,7 @@ var NativeSupport = (function () {
                 }
             };
 
+            // go through all properties in 'Array.prototype' and 'Object'.
             addPrototype("Array.prototype", Array.prototype, callback);
             addPrototype("Object", Object, callback);
         },
@@ -329,9 +330,19 @@ var NativeSupport = (function () {
         }())
     };
 
+    // an object of publicly accessible functions for users to run.
     var prototype = {
+
+        // add the initializer to public functions.
         init: utils.init,
+
+        // an object for ways to manipulate the list of browsers that will
+        // report incompatibility.
         reporting: {
+
+            // a setter for creating a custom list of browsers to support.
+            // this by default sets all browsers not in the list to '0' (no report)
+            // and all browsers in the list to '1' (report).
             custom: function (list) {
                 for (var x in utils.reporting) {
                     utils.reporting[x] = 0;
@@ -343,6 +354,9 @@ var NativeSupport = (function () {
 
                 return prototype;
             },
+
+            // this plucks browsers currently in the report list and gives them
+            // a flag of '0', which silences errors.
             remove: function (list) {
                 for (var x = 0; x < list.length; x++) {
                     utils.reporting[list[x]] = 0;
@@ -350,6 +364,8 @@ var NativeSupport = (function () {
 
                 return prototype;
             },
+
+            // this adds browsers to the report list by giving them a flag of '1'.
             add: function (list) {
                 for (var x = 0; x < list.length; x++) {
                     utils.reporting[list[x]] = 1;
