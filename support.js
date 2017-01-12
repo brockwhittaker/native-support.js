@@ -288,7 +288,11 @@ var NativeSupport = (function () {
             var __native = parent[prop];
 
             parent[prop] = function () {
-                callback(naming);
+                try { var a = {}; a.debug(); } catch(ex) {
+                    if (!/getCompletions|InjectedScript/mg.test(ex.stack)) {
+                        callback(naming);
+                    }
+                }
                 return __native.apply(this, arguments);
             };
 
