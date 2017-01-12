@@ -176,6 +176,23 @@ var NativeSupport = (function () {
             NONE: 2
         },
 
+        memoizeBuildObject: (function () {
+            var map = {};
+
+            return function (parent, prop, value) {
+                if (!value && map[parent] && map[parent][prop]) {
+                    return map[parent][prop];
+                } else if (value) {
+                    if (!map[parent]) {
+                        map[parent] = {};
+                    }
+
+                    map[parent][prop] = value;
+                    return value;
+                }
+            };
+        }()),
+
         // a maintained list of browsers that we track compatibility with.
         browsers: {
             C: "Chrome",
@@ -205,41 +222,53 @@ var NativeSupport = (function () {
         // this takes an Array of "None" and object of "SOME" and maps it to a
         // standard output format where there is a map of support and a map of
         // errors that align.
-        buildSupport: function (some, none, naming) {
-            var ALL = utils.support.ALL,
-                map = {
-                    C:      ALL,    FF:     ALL,
-                    IE7:    ALL,    IE8:    ALL,
-                    IE9:    ALL,    IE10:   ALL,
-                    IE11:   ALL,    E:      ALL,
-                    S9:     ALL,    S10:    ALL
-                },
-                errors = {},
-                x;
+        buildSupport: function (naming) {
+            var buildObject = this.memoizeBuildObject(naming.parent, naming.prop);
 
-            for (x in (some || {})) {
-                map[x] = utils.support.SOME;
-                errors[x] = some[x];
-            }
+            if (!buildObject) {
+                var support = naming.prop ? compatTable[naming.parent][naming.prop] : compatTable[naming.parent];
+                var some = support.SOME || {},
+                    none = support.NONE || {};
 
-            for (var x = 0; x < none.length; x++) {
-                map[none[x]] = utils.support.NONE;
-            }
+                var ALL = utils.support.ALL,
+                    // start out by assuming that all browsers have full support of
+                    // the particular property until proven otherwise.
+                    map = {
+                        C:      ALL,    FF:     ALL,
+                        IE7:    ALL,    IE8:    ALL,
+                        IE9:    ALL,    IE10:   ALL,
+                        IE11:   ALL,    E:      ALL,
+                        S9:     ALL,    S10:    ALL
+                    },
+                    errors = {},
+                    x;
 
-            // for all browsers that you are not interested in tracking, they
-            // should just validate as passing ALL tests so that they do not
-            // throw any errors.
-            for (var browser in utils.reporting) {
-                if (utils.reporting[browser] === 0) {
-                    map[browser] = ALL;
+                for (x in (some || {})) {
+                    map[x] = utils.support.SOME;
+                    errors[x] = some[x];
                 }
-            }
 
-            return {
-                flags: map,
-                errors: errors,
-                naming: naming
-            };
+                for (var x = 0; x < none.length; x++) {
+                    map[none[x]] = utils.support.NONE;
+                }
+
+                // for all browsers that you are not interested in tracking, they
+                // should just validate as passing ALL tests so that they do not
+                // throw any errors.
+                for (var browser in utils.reporting) {
+                    if (utils.reporting[browser] === 0) {
+                        map[browser] = ALL;
+                    }
+                }
+
+                return this.memoizeBuildObject(naming.parent, naming.prop, {
+                    flags: map,
+                    errors: errors,
+                    naming: naming
+                });
+            } else {
+                return this.memoizeBuildObject(naming.parent, naming.prop);
+            }
         },
 
         // this wraps the native functions in a function that runs a custom callback
@@ -268,8 +297,7 @@ var NativeSupport = (function () {
         // function.
         init: function () {
             var callback = (function (naming, support) {
-                var support = naming.prop ? compatTable[naming.parent][naming.prop] : compatTable[naming.parent];
-                var buildObject = utils.buildSupport(support.SOME || {}, support.NONE || {}, naming);
+                var buildObject = utils.buildSupport(naming);
 
                 utils.print(buildObject);
             }).bind(this);
