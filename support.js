@@ -429,8 +429,18 @@ var NativeSupport = (function () {
                 return prototype;
             }
         }
-
     };
+
+    // This allows for errors to be kept on browsers you are interested
+    // in, however it won't actually print them to a console.
+    Object.defineProperty(prototype, "silence", {
+        set: function (value) {
+            return store.silence = !!value;
+        },
+        get: function () {
+            return store.silence
+        }
+    })
 
     return prototype;
 }());
