@@ -214,9 +214,10 @@ var NativeSupport = (function () {
                     IE11:   ALL,    E:      ALL,
                     S9:     ALL,    S10:    ALL
                 },
-                errors = {};
+                errors = {},
+                x;
 
-            for (var x in (some || {})) {
+            for (x in (some || {})) {
                 map[x] = utils.support.SOME;
                 errors[x] = some[x];
             }
