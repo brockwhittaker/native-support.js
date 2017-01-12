@@ -226,6 +226,9 @@ var NativeSupport = (function () {
                 map[none[x]] = utils.support.NONE;
             }
 
+            // for all browsers that you are not interested in tracking, they
+            // should just validate as passing ALL tests so that they do not
+            // throw any errors.
             for (var browser in utils.reporting) {
                 if (utils.reporting[browser] === 0) {
                     map[browser] = ALL;
