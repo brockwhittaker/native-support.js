@@ -408,7 +408,13 @@ var NativeSupport = (function () {
                     }
 
                     if (!store.silence) {
-                        console.log(line);
+                        var args = [line, "font-weight:600;color: #b86666", "font-weight:400;color:#666;font-size:0.9em", "font-weight:600;color:#ba924d", "font-weight:400;color:#666;font-size:0.9em"];
+
+                        if (data.SOME.length > 0) {
+                            console.log.apply(null, args);
+                        } else {
+                            console.log.apply(null, args.slice(0, 3));
+                        }
                     }
                 }
             }
