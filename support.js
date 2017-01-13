@@ -334,7 +334,9 @@ var NativeSupport = (function () {
             var str = {
                 // print out a list of browsers that are not supported with a given
                 // feature.
-                NONE: function (data, feature, list) {
+                NONE: function (data, feature) {
+                    var list = data.NONE;
+
                     data.NONE = utils.native["Array.prototype"].map.call(data.NONE, function (o) {
                         return utils.browsers[o];
                     });
@@ -345,6 +347,22 @@ var NativeSupport = (function () {
                         return "The `" + feature + "` feature is is incompatible with " +
                                utils.native["Array.prototype"].join.call(data.NONE, ", ") + ".";
                     }
+                },
+                SOME: function (data, feature) {
+                    // because Object.keys is being replaced by the proxy function,
+                    // we will get an infinite call stack while it is being replaced
+                    // and it will trigger false warnings if we use it in code, so
+                    // we will count the keys ourselves instead.
+                    var issues = utils.native["Array.prototype"].map.call(data.SOME, function (o) {
+                        return "\t - " + o.browser + ": " + o.error;
+                    });
+
+                    // if more than one key return output.
+                    if (issues.length > 0) {
+                        var str = "Some issues present with `" + feature + "`:\n";
+
+                        return str + issues.join("\n");
+                    }
                 }
             };
 
@@ -352,18 +370,34 @@ var NativeSupport = (function () {
             // the `str` variable every time.
             return function (buildObject) {
                 var data = {
-                    NONE: []
+                    NONE: [],
+                    SOME: []
                 };
 
                 for (var x in buildObject.flags) {
                     if (buildObject.flags[x] === utils.support.NONE) {
                         utils.native["Array.prototype"].push.call(data.NONE, x);
+                    } else if (buildObject.flags[x] == utils.support.SOME) {
+                        utils.native["Array.prototype"].push.call(data.SOME, { browser: x, error: buildObject.errors[x] });
                     }
                 }
 
 
                 var prop = buildObject.naming.parent + "." + buildObject.naming.prop;
-                var line = str.NONE(data, prop, data.NONE);
+
+                var line = (function () {
+                    var NONE = str.NONE(data, prop);
+                    var SOME = str.SOME(data, prop);
+
+                    if (NONE) {
+                        NONE = "%cNo Support:\n%c" + NONE;
+                    }
+                    if (SOME) {
+                        SOME = "%cSome Support:\n%c" + SOME;
+                    }
+                    return SOME ? NONE + "\n\n" + SOME : NONE;
+                }());
+
                 if (line) {
                     for (var x = 0; x < data.NONE.length; x++) {
                         if (!store.errors.NONE[data.NONE[x]]) {
