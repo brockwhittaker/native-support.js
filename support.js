@@ -407,6 +407,14 @@ var NativeSupport = (function () {
                         store.errors.NONE[data.NONE[x]].count++;
                     }
 
+                    for (var x = 0; x < data.SOME.length; x++) {
+                        if (!store.errors.SOME[data.SOME[x].browser]) {
+                            store.errors.SOME[data.SOME[x].browser] = { prop: prop, count: 0 };
+                        }
+
+                        store.errors.SOME[data.SOME[x].browser].count++;
+                    }
+
                     if (!store.silence) {
                         var args = [line, "font-weight:600;color: #b86666", "font-weight:400;color:#666;font-size:0.9em", "font-weight:600;color:#ba924d", "font-weight:400;color:#666;font-size:0.9em"];
 
