@@ -51,5 +51,16 @@ NativeSupport
 NativeSupport.silence = true;
 ```
 
+###Output
+
+Output comes both in the form of console logs along with the `NativeSupport.errors` object where they are collected. The logs should look similar to:
+
+```
+No Support:
+The `Array.prototype.includes` feature is is incompatible with IE7, IE8, IE9, IE10, IE11, Edge 12, Edge 13.
+```
+
+Errors are collected in the `errors` map and indexed by `NONE` and `SOME` and further indexed by the browser in which they occurred in.
+
 ##Issues
-It appears currently as the Chrome Dev Tools will use the builtins in JavaScript when using the console. This means that if you create an object in the console it will throw a bunch of incompatibility statements.
+It appears currently as the Chrome Dev Tools will use the builtins in JavaScript when using the console. This means that if you create an object in the console it will throw a bunch of incompatibility statements. The workaround for this is to prevent throwing any errors in which stem from two processes identified as being Chrome in the regex `/getCompletions|InjectedScript/`. A better solution to this would be great!
